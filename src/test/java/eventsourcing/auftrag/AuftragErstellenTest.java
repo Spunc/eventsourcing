@@ -1,25 +1,29 @@
 package eventsourcing.auftrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-public class AuftragErstellen {
+public class AuftragErstellenTest {
 
 	@Test
-	void erstelle_auftrag_ohne_versicherung() {
+	void auftragErstellen_ohne_Versicherung() {
+		// Precondition
+		Auftrag auftrag = new Auftrag();
+
+		// Command
 		int gewicht = 2_000;
 		BigDecimal warenwert = BigDecimal.valueOf(4_999);
-
 		AuftragErstellenCommand command = new AuftragErstellenCommand();
 		command.setGewicht(gewicht);
 		command.setWarenwert(warenwert);
 
-		Auftrag auftrag = new Auftrag(UUID.randomUUID());
+		// Execute
 		auftrag.erstellen(command);
 
+		// Check
 		var events = auftrag.getUncommittedEvents();
 
 		assertThat(events).singleElement().isInstanceOfSatisfying(AuftragErstelltEvent.class, e -> {
@@ -29,21 +33,40 @@ public class AuftragErstellen {
 	}
 
 	@Test
-	void erstelle_mit_versicherung() {
+	void auftragErstellen_mit_Versicherung() {
+		// Precondition
+		Auftrag auftrag = new Auftrag();
+
+		// Command
 		int gewicht = 2_000;
 		BigDecimal warenwert = BigDecimal.valueOf(5_000);
-
 		AuftragErstellenCommand command = new AuftragErstellenCommand();
 		command.setGewicht(gewicht);
 		command.setWarenwert(warenwert);
 
-		Auftrag auftrag = new Auftrag(UUID.randomUUID());
+		// Execute
 		auftrag.erstellen(command);
 
+		// Check
 		var events = auftrag.getUncommittedEvents();
 
 		assertThat(events).hasSize(2);
 		assertThat(events).element(0).isInstanceOf(AuftragErstelltEvent.class);
 		assertThat(events).element(1).isInstanceOf(VersicherungAngefordertEvent.class);
+	}
+
+	@Test
+	void gewicht_ueberschritten() {
+		// Precondition
+		Auftrag auftrag = new Auftrag();
+
+		// Command
+		int gewicht = 3_001;
+		BigDecimal warenwert = BigDecimal.valueOf(1_000);
+		AuftragErstellenCommand command = new AuftragErstellenCommand();
+		command.setGewicht(gewicht);
+		command.setWarenwert(warenwert);
+
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> auftrag.erstellen(command));
 	}
 }
