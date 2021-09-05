@@ -1,6 +1,6 @@
 package eventsourcing.auftrag;
 
-import eventsourcing.Event;
+import eventsourcing.base.Event;
 
 public interface AuftragEvent extends Event {
 

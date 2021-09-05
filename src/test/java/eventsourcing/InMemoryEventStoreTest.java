@@ -2,6 +2,9 @@ package eventsourcing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import eventsourcing.base.Event;
+import eventsourcing.base.EventStore;
+import eventsourcing.base.InMemoryEventStore;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;

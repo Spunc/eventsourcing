@@ -1,4 +1,4 @@
-package eventsourcing;
+package eventsourcing.base;
 
 import java.util.List;
 import java.util.UUID;
