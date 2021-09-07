@@ -1,14 +1,13 @@
 package eventsourcing.auftrag;
 
-import java.math.BigDecimal;
 import lombok.Data;
 
 @Data
 public class AuftragErstelltEvent implements AuftragEvent {
 
-	private int gewicht;
+	private Ladestelle beladestelle;
 
-	private BigDecimal warenwert;
+	private Ladestelle entladestelle;
 
 	@Override
 	public void accept(Auftrag auftrag) {

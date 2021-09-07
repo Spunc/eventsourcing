@@ -4,25 +4,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import eventsourcing.base.EventStore;
 import eventsourcing.base.InMemoryEventStore;
-import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class AuftragCommandHandlerTest {
 
-	private EventStore<AuftragEvent> eventStore = new InMemoryEventStore<>();
+	private final EventStore<AuftragEvent> eventStore = new InMemoryEventStore<>();
 
-	private AuftragCommandHandler commandHandler = new AuftragCommandHandler(eventStore);
+	private final AuftragCommandHandler commandHandler = new AuftragCommandHandler(eventStore);
 
 	@Test
 	void erstellen() {
+		ZonedDateTime beladezeit = ZonedDateTime.now().plusDays(1);
+		ZonedDateTime entladezeit = beladezeit.plusDays(1);
 		AuftragErstellenCommand command = new AuftragErstellenCommand();
-		command.setGewicht(2_500);
-		command.setWarenwert(BigDecimal.valueOf(3_000));
+		command.setBeladestelle(new Ladestelle("12345", beladezeit));
+		command.setEntladestelle(new Ladestelle("98765", entladezeit));
 
 		UUID id = commandHandler.erstellen(command);
 
 		var auftragEvents = eventStore.get(id);
-		assertThat(auftragEvents.size()).isGreaterThan(0);
+		assertThat(auftragEvents).hasSize(1);
 	}
+
 }

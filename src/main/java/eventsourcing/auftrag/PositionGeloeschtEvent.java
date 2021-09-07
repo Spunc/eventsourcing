@@ -1,14 +1,14 @@
 package eventsourcing.auftrag;
 
-import java.math.BigDecimal;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class VersicherungAngefordertEvent implements AuftragEvent {
+public class PositionGeloeschtEvent implements AuftragEvent {
 
-	private BigDecimal gesamtWarenwert;
+	private UUID id;
 
 	@Override
 	public void accept(Auftrag auftrag) {

@@ -1,55 +1,100 @@
 package eventsourcing.auftrag;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 import lombok.Getter;
 
 public class Auftrag {
+	private static final BigDecimal VERSICHERUNGS_LIMIT = BigDecimal.valueOf(5_000);
 
-	private int gewicht;
+	private Ladestelle beladestelle;
 
-	private BigDecimal warenwert;
+	private Ladestelle entladestelle;
+
+	private List<Position> positionen = new ArrayList<>();
 
 	private VersicherungsStatus versicherungsStatus = VersicherungsStatus.KEINE;
 
+	// Commands
+
 	public void erstellen(AuftragErstellenCommand command) {
-		if (command.getGewicht() > 3_000) throw new IllegalArgumentException("Höchstgewicht überschritten");
+		if (command.getBeladestelle().getLadezeit().isBefore(ZonedDateTime.now())) {
+			throw new IllegalArgumentException("Ladezeit der Beladestelle ist in der Vergangenheit");
+		}
+		if (command.getEntladestelle().getLadezeit().isBefore(command.getBeladestelle().getLadezeit())) {
+			throw new IllegalArgumentException("Ladezeit der Entladestelle ist früher als Ladezeit der Beladestelle");
+		}
 
 		AuftragErstelltEvent erstelltEvent = new AuftragErstelltEvent();
-		erstelltEvent.setGewicht(command.getGewicht());
-		erstelltEvent.setWarenwert(command.getWarenwert());
+		erstelltEvent.setBeladestelle(command.getBeladestelle());
+		erstelltEvent.setEntladestelle(command.getEntladestelle());
 		applyAndSave(erstelltEvent);
-
-		boolean brauchtVersicherung = BigDecimal.valueOf(5_000).compareTo(command.getWarenwert()) <= 0;
-		if (brauchtVersicherung)
-			applyAndSave((new VersicherungAngefordertEvent()));
 	}
 
 	public void aendern(AuftragAendernCommand command) {
-		if (command.getGewicht() > 3_000) throw new IllegalArgumentException("Höchstgewicht überschritten");
+		if (command.getBeladestelle().getLadezeit().isBefore(ZonedDateTime.now())) {
+			throw new IllegalArgumentException("Ladezeit der Beladestelle ist in der Vergangenheit");
+		}
+		if (command.getEntladestelle().getLadezeit().isBefore(command.getBeladestelle().getLadezeit())) {
+			throw new IllegalArgumentException("Ladezeit der Entladestelle ist früher als Ladezeit der Beladestelle");
+		}
 
 		AuftragGeaendertEvent geaendertEvent = new AuftragGeaendertEvent();
-		geaendertEvent.setGewicht(command.getGewicht());
-		geaendertEvent.setWarenwert(command.getWarenwert());
+		geaendertEvent.setBeladestelle(command.getBeladestelle());
+		geaendertEvent.setEntladestelle(command.getEntladestelle());
 		applyAndSave(geaendertEvent);
-
-		boolean brauchtVersicherung = BigDecimal.valueOf(5_000).compareTo(command.getWarenwert()) <= 0;
-		if (brauchtVersicherung && versicherungsStatus == VersicherungsStatus.KEINE) {
-			applyAndSave(new VersicherungAngefordertEvent());
-		} else if (!brauchtVersicherung && versicherungsStatus != VersicherungsStatus.KEINE) {
-			applyAndSave(new VersicherungStorniertEvent());
-		}
 	}
 
+	public UUID fuegePositionHinzu(FuegePositionHinzuCommand command) {
+		UUID id = UUID.randomUUID();
+		Position position = new Position();
+		position.setId(id);
+		position.setBezeichnung(command.getBezeichnung());
+		position.setWarenwert(command.getWarenwert());
+
+		applyAndSave(new PositionHinzugefuegtEvent(position));
+
+		versicherungsCheck();
+		return id;
+	}
+
+	public void loeschePosition(LoeschePositionCommand command) {
+		boolean vorhanden = positionen.stream()
+				.map(Position::getId)
+				.anyMatch(p -> command.getId().equals(p));
+		if (!vorhanden) {
+			throw new NoSuchElementException("Position nicht gefunden");
+		}
+
+		applyAndSave(new PositionGeloeschtEvent(command.getId()));
+
+		versicherungsCheck();
+
+	}
+
+
+	// Event-apply-Methoden
+
 	public void apply(AuftragErstelltEvent event) {
-		gewicht = event.getGewicht();
-		warenwert = event.getWarenwert();
+		beladestelle = event.getBeladestelle();
+		entladestelle = event.getEntladestelle();
 	}
 
 	public void apply(AuftragGeaendertEvent event) {
-		gewicht = event.getGewicht();
-		warenwert = event.getWarenwert();
+		beladestelle = event.getBeladestelle();
+		entladestelle = event.getEntladestelle();
+	}
+
+	public void apply(PositionHinzugefuegtEvent event) {
+		positionen.add(event.getPosition());
+	}
+
+	public void apply(PositionGeloeschtEvent event) {
+		positionen.removeIf(p -> event.getId().equals(p.getId()));
 	}
 
 	public void apply(VersicherungAngefordertEvent event) {
@@ -58,6 +103,24 @@ public class Auftrag {
 
 	public void apply(VersicherungStorniertEvent event) {
 		versicherungsStatus = VersicherungsStatus.KEINE;
+	}
+
+
+	// Helfer
+
+	private BigDecimal getGesamtWarenwert() {
+		return positionen.stream().map(Position::getWarenwert).reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+
+	private void versicherungsCheck() {
+		BigDecimal gesamtWarenwert = getGesamtWarenwert();
+		boolean brauchtVersicherung = VERSICHERUNGS_LIMIT.compareTo(gesamtWarenwert) <= 0;
+
+		if (brauchtVersicherung && versicherungsStatus == VersicherungsStatus.KEINE) {
+			applyAndSave(new VersicherungAngefordertEvent(gesamtWarenwert));
+		} else if (!brauchtVersicherung && versicherungsStatus != VersicherungsStatus.KEINE) {
+			applyAndSave(new VersicherungStorniertEvent());
+		}
 	}
 
 
@@ -74,4 +137,5 @@ public class Auftrag {
 	public void applyAll(List<AuftragEvent> events) {
 		events.forEach(e -> e.accept(this));
 	}
+
 }

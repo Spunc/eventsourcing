@@ -3,70 +3,57 @@ package eventsourcing.auftrag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 public class AuftragErstellenTest {
 
-	@Test
-	void auftragErstellen_ohne_Versicherung() {
-		// Precondition
-		Auftrag auftrag = new Auftrag();
+	private static final String BELADESTELLE_PLZ = "27283";
+	private static final String ENTLADESTELLE_PLZ = "86150";
 
+	private final Auftrag auftrag = new Auftrag();
+
+	@Test
+	void erstellen() {
 		// Command
-		int gewicht = 2_000;
-		BigDecimal warenwert = BigDecimal.valueOf(4_999);
-		AuftragErstellenCommand command = new AuftragErstellenCommand();
-		command.setGewicht(gewicht);
-		command.setWarenwert(warenwert);
+		ZonedDateTime beladezeit = ZonedDateTime.now().plusDays(1);
+		ZonedDateTime entladezeit = beladezeit.plusDays(1);
+		AuftragErstellenCommand command = createCommand(beladezeit, entladezeit);
 
 		// Execute
 		auftrag.erstellen(command);
 
-		// Check
-		var events = auftrag.getUncommittedEvents();
+		var auftragEvents = auftrag.getUncommittedEvents();
+		assertThat(auftragEvents).hasSize(1);
 
-		assertThat(events).singleElement().isInstanceOfSatisfying(AuftragErstelltEvent.class, e -> {
-			assertThat(e.getGewicht()).isEqualTo(gewicht);
-			assertThat(e.getWarenwert()).isEqualTo(warenwert);
+		var event = auftragEvents.get(0);
+		assertThat(event).isInstanceOfSatisfying(AuftragErstelltEvent.class, e -> {
+			assertThat(e.getBeladestelle()).isEqualTo(new Ladestelle(BELADESTELLE_PLZ, beladezeit));
+			assertThat(e.getEntladestelle()).isEqualTo(new Ladestelle(ENTLADESTELLE_PLZ, entladezeit));
 		});
 	}
 
 	@Test
-	void auftragErstellen_mit_Versicherung() {
-		// Precondition
-		Auftrag auftrag = new Auftrag();
+	void beladezeit_in_Vergangenheit() {
+		ZonedDateTime beladezeit = ZonedDateTime.now().minusDays(1);
+		AuftragErstellenCommand command = createCommand(beladezeit, beladezeit.plusDays(1));
 
-		// Command
-		int gewicht = 2_000;
-		BigDecimal warenwert = BigDecimal.valueOf(5_000);
-		AuftragErstellenCommand command = new AuftragErstellenCommand();
-		command.setGewicht(gewicht);
-		command.setWarenwert(warenwert);
-
-		// Execute
-		auftrag.erstellen(command);
-
-		// Check
-		var events = auftrag.getUncommittedEvents();
-
-		assertThat(events).hasSize(2);
-		assertThat(events).element(0).isInstanceOf(AuftragErstelltEvent.class);
-		assertThat(events).element(1).isInstanceOf(VersicherungAngefordertEvent.class);
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> auftrag.erstellen(command));
 	}
 
 	@Test
-	void gewicht_ueberschritten() {
-		// Precondition
-		Auftrag auftrag = new Auftrag();
-
-		// Command
-		int gewicht = 3_001;
-		BigDecimal warenwert = BigDecimal.valueOf(1_000);
-		AuftragErstellenCommand command = new AuftragErstellenCommand();
-		command.setGewicht(gewicht);
-		command.setWarenwert(warenwert);
+	void entladezeit_vor_Beladezeit() {
+		ZonedDateTime beladezeit = ZonedDateTime.now().plusDays(5);
+		AuftragErstellenCommand command = createCommand(beladezeit, beladezeit.minusDays(1));
 
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> auftrag.erstellen(command));
+	}
+
+
+	private AuftragErstellenCommand createCommand(ZonedDateTime beladezeit, ZonedDateTime entladezeit) {
+		AuftragErstellenCommand command = new AuftragErstellenCommand();
+		command.setBeladestelle(new Ladestelle(BELADESTELLE_PLZ, beladezeit));
+		command.setEntladestelle(new Ladestelle(ENTLADESTELLE_PLZ, entladezeit));
+		return command;
 	}
 }
