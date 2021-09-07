@@ -4,7 +4,7 @@ import eventsourcing.auftrag.domain.Ladestelle;
 import lombok.Data;
 
 @Data
-public class AuftragErstellenCommand {
+public class ErstelleAuftragCommand {
 
 	private Ladestelle beladestelle;
 

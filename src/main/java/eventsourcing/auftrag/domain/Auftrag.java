@@ -1,7 +1,7 @@
 package eventsourcing.auftrag.domain;
 
-import eventsourcing.auftrag.command.AuftragAendernCommand;
-import eventsourcing.auftrag.command.AuftragErstellenCommand;
+import eventsourcing.auftrag.command.AendereAuftragCommand;
+import eventsourcing.auftrag.command.ErstelleAuftragCommand;
 import eventsourcing.auftrag.command.FuegePositionHinzuCommand;
 import eventsourcing.auftrag.command.LoeschePositionCommand;
 import eventsourcing.auftrag.event.AuftragErstelltEvent;
@@ -32,7 +32,7 @@ public class Auftrag {
 
 	// Commands
 
-	public void erstellen(AuftragErstellenCommand command) {
+	public void erstellen(ErstelleAuftragCommand command) {
 		if (command.getBeladestelle().getLadezeit().isBefore(ZonedDateTime.now())) {
 			throw new IllegalArgumentException("Ladezeit der Beladestelle ist in der Vergangenheit");
 		}
@@ -46,7 +46,7 @@ public class Auftrag {
 		applyAndSave(erstelltEvent);
 	}
 
-	public void aendern(AuftragAendernCommand command) {
+	public void aendern(AendereAuftragCommand command) {
 		if (command.getBeladestelle().getLadezeit().isBefore(ZonedDateTime.now())) {
 			throw new IllegalArgumentException("Ladezeit der Beladestelle ist in der Vergangenheit");
 		}
@@ -54,18 +54,13 @@ public class Auftrag {
 			throw new IllegalArgumentException("Ladezeit der Entladestelle ist früher als Ladezeit der Beladestelle");
 		}
 
-		AuftragGeaendertEvent geaendertEvent = new AuftragGeaendertEvent();
-		geaendertEvent.setBeladestelle(command.getBeladestelle());
-		geaendertEvent.setEntladestelle(command.getEntladestelle());
+		AuftragGeaendertEvent geaendertEvent = new AuftragGeaendertEvent(command.getBeladestelle(), command.getEntladestelle());
 		applyAndSave(geaendertEvent);
 	}
 
 	public UUID fuegePositionHinzu(FuegePositionHinzuCommand command) {
 		UUID id = UUID.randomUUID();
-		Position position = new Position();
-		position.setId(id);
-		position.setBezeichnung(command.getBezeichnung());
-		position.setWarenwert(command.getWarenwert());
+		Position position = new Position(id, command.getBezeichnung(), command.getWarenwert());
 
 		applyAndSave(new PositionHinzugefuegtEvent(position));
 
@@ -144,7 +139,7 @@ public class Auftrag {
 		uncommittedEvents.add(event);
 	}
 
-	public void applyAll(List<AuftragEvent> events) {
+	public void apply(List<AuftragEvent> events) {
 		events.forEach(e -> e.accept(this));
 	}
 

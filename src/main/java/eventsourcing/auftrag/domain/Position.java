@@ -2,9 +2,11 @@ package eventsourcing.auftrag.domain;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class Position {
 
 	private UUID id;

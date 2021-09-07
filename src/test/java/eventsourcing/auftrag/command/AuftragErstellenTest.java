@@ -18,18 +18,19 @@ public class AuftragErstellenTest {
 
 	@Test
 	void erstellen() {
-		// Command
+		// Command erstellen
 		ZonedDateTime beladezeit = ZonedDateTime.now().plusDays(1);
 		ZonedDateTime entladezeit = beladezeit.plusDays(1);
-		AuftragErstellenCommand command = createCommand(beladezeit, entladezeit);
+		ErstelleAuftragCommand command = createCommand(beladezeit, entladezeit);
 
-		// Execute
+		// Ausführen
 		auftrag.erstellen(command);
 
-		var auftragEvents = auftrag.getUncommittedEvents();
-		assertThat(auftragEvents).hasSize(1);
+		// Verifizieren
+		var events = auftrag.getUncommittedEvents();
+		assertThat(events).hasSize(1);
 
-		var event = auftragEvents.get(0);
+		var event = events.get(0);
 		assertThat(event).isInstanceOfSatisfying(AuftragErstelltEvent.class, e -> {
 			assertThat(e.getBeladestelle()).isEqualTo(new Ladestelle(BELADESTELLE_PLZ, beladezeit));
 			assertThat(e.getEntladestelle()).isEqualTo(new Ladestelle(ENTLADESTELLE_PLZ, entladezeit));
@@ -38,23 +39,27 @@ public class AuftragErstellenTest {
 
 	@Test
 	void beladezeit_in_Vergangenheit() {
+		// Command erstellen
 		ZonedDateTime beladezeit = ZonedDateTime.now().minusDays(1);
-		AuftragErstellenCommand command = createCommand(beladezeit, beladezeit.plusDays(1));
+		ErstelleAuftragCommand command = createCommand(beladezeit, beladezeit.plusDays(1));
 
+		// Ausführen und Verifizieren
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> auftrag.erstellen(command));
 	}
 
 	@Test
 	void entladezeit_vor_Beladezeit() {
+		// Command erstellen
 		ZonedDateTime beladezeit = ZonedDateTime.now().plusDays(5);
-		AuftragErstellenCommand command = createCommand(beladezeit, beladezeit.minusDays(1));
+		ErstelleAuftragCommand command = createCommand(beladezeit, beladezeit.minusDays(1));
 
+		// Ausführen und Verifizieren
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> auftrag.erstellen(command));
 	}
 
 
-	private AuftragErstellenCommand createCommand(ZonedDateTime beladezeit, ZonedDateTime entladezeit) {
-		AuftragErstellenCommand command = new AuftragErstellenCommand();
+	private ErstelleAuftragCommand createCommand(ZonedDateTime beladezeit, ZonedDateTime entladezeit) {
+		ErstelleAuftragCommand command = new ErstelleAuftragCommand();
 		command.setBeladestelle(new Ladestelle(BELADESTELLE_PLZ, beladezeit));
 		command.setEntladestelle(new Ladestelle(ENTLADESTELLE_PLZ, entladezeit));
 		return command;

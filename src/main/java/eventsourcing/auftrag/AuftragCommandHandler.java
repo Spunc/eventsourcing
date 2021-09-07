@@ -1,6 +1,6 @@
 package eventsourcing.auftrag;
 
-import eventsourcing.auftrag.command.AuftragErstellenCommand;
+import eventsourcing.auftrag.command.ErstelleAuftragCommand;
 import eventsourcing.auftrag.domain.Auftrag;
 import eventsourcing.auftrag.event.AuftragEvent;
 import eventsourcing.base.EventStore;
@@ -14,7 +14,7 @@ public class AuftragCommandHandler {
 
 	private final EventStore<AuftragEvent> auftragEventStore;
 
-	public UUID erstellen(AuftragErstellenCommand command) {
+	public UUID erstellen(ErstelleAuftragCommand command) {
 		UUID id = UUID.randomUUID();
 		Auftrag auftrag = new Auftrag();
 		auftrag.erstellen(command);

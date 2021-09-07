@@ -2,7 +2,7 @@ package eventsourcing.auftrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import eventsourcing.auftrag.command.AuftragErstellenCommand;
+import eventsourcing.auftrag.command.ErstelleAuftragCommand;
 import eventsourcing.auftrag.domain.Ladestelle;
 import eventsourcing.auftrag.event.AuftragEvent;
 import eventsourcing.base.EventStore;
@@ -21,7 +21,7 @@ class AuftragCommandHandlerTest {
 	void erstellen() {
 		ZonedDateTime beladezeit = ZonedDateTime.now().plusDays(1);
 		ZonedDateTime entladezeit = beladezeit.plusDays(1);
-		AuftragErstellenCommand command = new AuftragErstellenCommand();
+		ErstelleAuftragCommand command = new ErstelleAuftragCommand();
 		command.setBeladestelle(new Ladestelle("12345", beladezeit));
 		command.setEntladestelle(new Ladestelle("98765", entladezeit));
 
