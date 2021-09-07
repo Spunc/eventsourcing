@@ -22,9 +22,9 @@ public class FuegePositionHinzuTest {
 	void init() {
 		// Ein erstellter Auftrag
 		ZonedDateTime beladezeit = ZonedDateTime.now().plusDays(2);
-		AuftragErstelltEvent erstelltEvent = new AuftragErstelltEvent();
-		erstelltEvent.setBeladestelle(new Ladestelle("12345", beladezeit));
-		erstelltEvent.setEntladestelle(new Ladestelle("98765", beladezeit.plusDays(2)));
+		Ladestelle beladestelle = new Ladestelle("12345", beladezeit);
+		Ladestelle entladestelle = new Ladestelle("98765", beladezeit.plusDays(1));
+		AuftragErstelltEvent erstelltEvent = new AuftragErstelltEvent(beladestelle, entladestelle);
 
 		auftrag.apply(erstelltEvent);
 	}

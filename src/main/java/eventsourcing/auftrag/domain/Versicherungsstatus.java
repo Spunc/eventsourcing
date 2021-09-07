@@ -1,6 +1,6 @@
 package eventsourcing.auftrag.domain;
 
-public enum VersicherungsStatus {
+public enum Versicherungsstatus {
 
 	KEINE,
 	ANGEFORDERT,

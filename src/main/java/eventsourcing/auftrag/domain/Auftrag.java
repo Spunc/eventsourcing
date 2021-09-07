@@ -11,6 +11,7 @@ import eventsourcing.auftrag.event.PositionGeloeschtEvent;
 import eventsourcing.auftrag.event.PositionHinzugefuegtEvent;
 import eventsourcing.auftrag.event.VersicherungAngefordertEvent;
 import eventsourcing.auftrag.event.VersicherungStorniertEvent;
+import eventsourcing.auftrag.event.VersicherungsBestaetigt;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class Auftrag {
 
 	private List<Position> positionen = new ArrayList<>();
 
-	private VersicherungsStatus versicherungsStatus = VersicherungsStatus.KEINE;
+	private Versicherungsstatus versicherungsstatus = Versicherungsstatus.KEINE;
 
 	// Commands
 
@@ -40,9 +41,7 @@ public class Auftrag {
 			throw new IllegalArgumentException("Ladezeit der Entladestelle ist früher als Ladezeit der Beladestelle");
 		}
 
-		AuftragErstelltEvent erstelltEvent = new AuftragErstelltEvent();
-		erstelltEvent.setBeladestelle(command.getBeladestelle());
-		erstelltEvent.setEntladestelle(command.getEntladestelle());
+		AuftragErstelltEvent erstelltEvent = new AuftragErstelltEvent(command.getBeladestelle(), command.getEntladestelle());
 		applyAndSave(erstelltEvent);
 	}
 
@@ -103,11 +102,13 @@ public class Auftrag {
 	}
 
 	public void apply(VersicherungAngefordertEvent event) {
-		versicherungsStatus = VersicherungsStatus.ANGEFORDERT;
+		versicherungsstatus = Versicherungsstatus.ANGEFORDERT;
 	}
 
+	public void apply(VersicherungsBestaetigt versicherungsBestaetigt) { versicherungsstatus = Versicherungsstatus.BESTAETIGT; }
+
 	public void apply(VersicherungStorniertEvent event) {
-		versicherungsStatus = VersicherungsStatus.KEINE;
+		versicherungsstatus = Versicherungsstatus.KEINE;
 	}
 
 
@@ -121,9 +122,9 @@ public class Auftrag {
 		BigDecimal gesamtWarenwert = getGesamtWarenwert();
 		boolean brauchtVersicherung = VERSICHERUNGS_LIMIT.compareTo(gesamtWarenwert) <= 0;
 
-		if (brauchtVersicherung && versicherungsStatus == VersicherungsStatus.KEINE) {
+		if (brauchtVersicherung && versicherungsstatus == Versicherungsstatus.KEINE) {
 			applyAndSave(new VersicherungAngefordertEvent(gesamtWarenwert));
-		} else if (!brauchtVersicherung && versicherungsStatus != VersicherungsStatus.KEINE) {
+		} else if (!brauchtVersicherung && versicherungsstatus != Versicherungsstatus.KEINE) {
 			applyAndSave(new VersicherungStorniertEvent());
 		}
 	}
@@ -142,5 +143,6 @@ public class Auftrag {
 	public void apply(List<AuftragEvent> events) {
 		events.forEach(e -> e.accept(this));
 	}
+
 
 }
