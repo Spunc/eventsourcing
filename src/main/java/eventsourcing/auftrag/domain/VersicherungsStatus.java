@@ -1,4 +1,4 @@
-package eventsourcing.auftrag;
+package eventsourcing.auftrag.domain;
 
 public enum VersicherungsStatus {
 

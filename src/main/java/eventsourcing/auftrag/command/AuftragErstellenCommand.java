@@ -1,5 +1,6 @@
-package eventsourcing.auftrag;
+package eventsourcing.auftrag.command;
 
+import eventsourcing.auftrag.domain.Ladestelle;
 import lombok.Data;
 
 @Data

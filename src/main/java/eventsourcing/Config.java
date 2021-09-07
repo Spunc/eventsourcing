@@ -1,6 +1,6 @@
 package eventsourcing;
 
-import eventsourcing.auftrag.AuftragEvent;
+import eventsourcing.auftrag.event.AuftragEvent;
 import eventsourcing.base.EventStore;
 import eventsourcing.base.InMemoryEventStore;
 import org.springframework.context.annotation.Bean;

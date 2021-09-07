@@ -2,6 +2,9 @@ package eventsourcing.auftrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import eventsourcing.auftrag.command.AuftragErstellenCommand;
+import eventsourcing.auftrag.domain.Ladestelle;
+import eventsourcing.auftrag.event.AuftragEvent;
 import eventsourcing.base.EventStore;
 import eventsourcing.base.InMemoryEventStore;
 import java.time.ZonedDateTime;

@@ -1,5 +1,6 @@
-package eventsourcing.auftrag;
+package eventsourcing.auftrag.event;
 
+import eventsourcing.auftrag.domain.Auftrag;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,5 +1,7 @@
-package eventsourcing.auftrag;
+package eventsourcing.auftrag.event;
 
+import eventsourcing.auftrag.domain.Auftrag;
+import eventsourcing.auftrag.domain.Position;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

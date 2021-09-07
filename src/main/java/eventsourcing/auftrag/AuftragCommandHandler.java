@@ -1,5 +1,8 @@
 package eventsourcing.auftrag;
 
+import eventsourcing.auftrag.command.AuftragErstellenCommand;
+import eventsourcing.auftrag.domain.Auftrag;
+import eventsourcing.auftrag.event.AuftragEvent;
 import eventsourcing.base.EventStore;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

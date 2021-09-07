@@ -1,4 +1,4 @@
-package eventsourcing.auftrag;
+package eventsourcing.auftrag.domain;
 
 import java.math.BigDecimal;
 import java.util.UUID;

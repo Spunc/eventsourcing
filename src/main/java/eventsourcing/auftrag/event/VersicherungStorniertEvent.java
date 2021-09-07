@@ -1,4 +1,6 @@
-package eventsourcing.auftrag;
+package eventsourcing.auftrag.event;
+
+import eventsourcing.auftrag.domain.Auftrag;
 
 public class VersicherungStorniertEvent implements AuftragEvent {
 

@@ -1,5 +1,16 @@
-package eventsourcing.auftrag;
+package eventsourcing.auftrag.domain;
 
+import eventsourcing.auftrag.command.AuftragAendernCommand;
+import eventsourcing.auftrag.command.AuftragErstellenCommand;
+import eventsourcing.auftrag.command.FuegePositionHinzuCommand;
+import eventsourcing.auftrag.command.LoeschePositionCommand;
+import eventsourcing.auftrag.event.AuftragErstelltEvent;
+import eventsourcing.auftrag.event.AuftragEvent;
+import eventsourcing.auftrag.event.AuftragGeaendertEvent;
+import eventsourcing.auftrag.event.PositionGeloeschtEvent;
+import eventsourcing.auftrag.event.PositionHinzugefuegtEvent;
+import eventsourcing.auftrag.event.VersicherungAngefordertEvent;
+import eventsourcing.auftrag.event.VersicherungStorniertEvent;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -73,7 +84,6 @@ public class Auftrag {
 		applyAndSave(new PositionGeloeschtEvent(command.getId()));
 
 		versicherungsCheck();
-
 	}
 
 

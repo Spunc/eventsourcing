@@ -1,5 +1,6 @@
-package eventsourcing.auftrag;
+package eventsourcing.auftrag.event;
 
+import eventsourcing.auftrag.domain.Auftrag;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;

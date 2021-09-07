@@ -1,4 +1,4 @@
-package eventsourcing.auftrag;
+package eventsourcing.auftrag.command;
 
 import java.math.BigDecimal;
 import lombok.Data;

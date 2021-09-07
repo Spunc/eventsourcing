@@ -1,8 +1,11 @@
-package eventsourcing.auftrag;
+package eventsourcing.auftrag.command;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import eventsourcing.auftrag.domain.Auftrag;
+import eventsourcing.auftrag.domain.Ladestelle;
+import eventsourcing.auftrag.event.AuftragErstelltEvent;
 import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 

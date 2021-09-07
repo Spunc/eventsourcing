@@ -1,4 +1,4 @@
-package eventsourcing.auftrag;
+package eventsourcing.auftrag.domain;
 
 import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
