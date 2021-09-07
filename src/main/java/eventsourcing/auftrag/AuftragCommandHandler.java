@@ -1,5 +1,6 @@
 package eventsourcing.auftrag;
 
+import eventsourcing.auftrag.command.AendereAuftragCommand;
 import eventsourcing.auftrag.command.ErstelleAuftragCommand;
 import eventsourcing.auftrag.domain.Auftrag;
 import eventsourcing.auftrag.event.AuftragEvent;
@@ -21,5 +22,13 @@ public class AuftragCommandHandler {
 
 		auftragEventStore.append(id, auftrag.getUncommittedEvents());
 		return id;
+	}
+
+	public void aendern(AendereAuftragCommand command, UUID id) {
+		Auftrag auftrag = new Auftrag();
+		auftrag.apply(auftragEventStore.get(id));
+		auftrag.aendern(command);
+
+		auftragEventStore.append(id, auftrag.getUncommittedEvents());
 	}
 }

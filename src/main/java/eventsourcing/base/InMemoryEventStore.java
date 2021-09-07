@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class InMemoryEventStore<T extends Event> implements EventStore<T> {
@@ -12,7 +13,11 @@ public class InMemoryEventStore<T extends Event> implements EventStore<T> {
 
 	@Override
 	public List<T> get(UUID id) {
-		return store.get(id);
+		var result = store.get(id);
+		if (result == null) {
+			throw new NoSuchElementException();
+		}
+		return result;
 	}
 
 	@Override

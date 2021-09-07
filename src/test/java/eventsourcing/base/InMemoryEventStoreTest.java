@@ -1,8 +1,10 @@
 package eventsourcing.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -11,12 +13,12 @@ class InMemoryEventStoreTest {
 	static class CreatedEvent implements Event {}
 	static class ModifiedEvent implements Event {}
 
+	private final EventStore<Event> eventStore = new InMemoryEventStore<>();
+
 	@Test
 	void test_mit_zwei_uuids() {
 		UUID uuid_1 = UUID.randomUUID();
 		UUID uuid_2 = UUID.randomUUID();
-
-		EventStore<Event> eventStore = new InMemoryEventStore<>();
 
 		eventStore.append(uuid_1, List.of(
 				new CreatedEvent(),
@@ -34,5 +36,10 @@ class InMemoryEventStoreTest {
 		var list_2 = eventStore.get(uuid_2);
 		assertThat(list_2).hasSize(1);
 		assertThat(list_2).element(0).isInstanceOf(CreatedEvent.class);
+	}
+
+	@Test
+	void nicht_vorhanden() {
+		assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> eventStore.get(UUID.randomUUID()));
 	}
 }

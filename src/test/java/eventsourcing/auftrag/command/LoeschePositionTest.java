@@ -3,6 +3,8 @@ package eventsourcing.auftrag.command;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import eventsourcing.auftrag.builder.AuftragBuilder;
+import eventsourcing.auftrag.builder.PositionBuilder;
 import eventsourcing.auftrag.domain.Auftrag;
 import eventsourcing.auftrag.domain.Versicherungsstatus;
 import eventsourcing.auftrag.event.VersicherungStorniertEvent;

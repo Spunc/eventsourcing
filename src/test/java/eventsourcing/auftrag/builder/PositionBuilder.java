@@ -1,4 +1,4 @@
-package eventsourcing.auftrag.command;
+package eventsourcing.auftrag.builder;
 
 import eventsourcing.auftrag.domain.Position;
 import java.math.BigDecimal;
