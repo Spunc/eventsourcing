@@ -3,7 +3,7 @@ package eventsourcing.auftrag.read;
 import eventsourcing.Config;
 import eventsourcing.auftrag.event.AuftragReadEvent;
 import eventsourcing.base.EventEnvelop;
-import eventsourcing.base.InMemoryProjectionStore;
+import eventsourcing.base.ProjectionStore;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class AuftragCurrentStateProjection {
 
-	private final InMemoryProjectionStore<AuftragCurrentState> projectionStore;
+	private final ProjectionStore<AuftragCurrentState> projectionStore;
 
 	@JmsListener(destination = Config.AUFTRAG_TOPIC)
 	public void onAuftragEvent(EventEnvelop<AuftragReadEvent> event) {
 		AuftragCurrentState auftragCurrentState = getOrCreate(event.getId());
 		event.getEvent().accept(auftragCurrentState);
-		projectionStore.upsert(event.getId(), new AuftragCurrentState());
+		projectionStore.upsert(event.getId(), auftragCurrentState);
 	}
 
 	private AuftragCurrentState getOrCreate(UUID id) {

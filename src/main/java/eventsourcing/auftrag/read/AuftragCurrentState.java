@@ -2,19 +2,25 @@ package eventsourcing.auftrag.read;
 
 import eventsourcing.auftrag.event.AuftragErstelltEvent;
 import eventsourcing.auftrag.event.AuftragGeaendertEvent;
+import eventsourcing.auftrag.event.PositionGeloeschtEvent;
 import eventsourcing.auftrag.event.PositionHinzugefuegtEvent;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
-@Data
+@Getter
+@EqualsAndHashCode
 public class AuftragCurrentState {
 
 	private Ladestelle beladestelle;
 
 	private Ladestelle entladestelle;
 
-	private List<Position> positionen;
+	private final List<Position> positionen = new ArrayList<>();
 
 	public void apply(AuftragErstelltEvent event) {
 		beladestelle = new Ladestelle(event.getBeladestelle().getPlz(), event.getBeladestelle().getLadezeit());
@@ -30,5 +36,10 @@ public class AuftragCurrentState {
 		var position = event.getPosition();
 		String geldwert = NumberFormat.getCurrencyInstance().format(position.getWarenwert());
 		positionen.add(new Position(position.getId(), position.getBezeichnung(), geldwert));
+	}
+
+	public void apply(PositionGeloeschtEvent positionGeloeschtEvent) {
+		UUID id = positionGeloeschtEvent.getId();
+		positionen.removeIf(p -> p.getId().equals(id));
 	}
 }

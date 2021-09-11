@@ -1,6 +1,8 @@
 package eventsourcing;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eventsourcing.auftrag.event.AuftragEvent;
 import eventsourcing.base.EventStore;
@@ -20,7 +22,11 @@ public class Config {
 
 	@Bean
 	Jackson2ObjectMapperBuilder jsonConfig() {
-		return new Jackson2ObjectMapperBuilder().modules(new JavaTimeModule());
+		return new Jackson2ObjectMapperBuilder()
+				.modules(new JavaTimeModule())
+				.featuresToDisable(
+						SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
+						DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
 	}
 
 	@Bean

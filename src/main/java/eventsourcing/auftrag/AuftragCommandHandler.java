@@ -8,7 +8,6 @@ import eventsourcing.auftrag.event.AuftragEvent;
 import eventsourcing.base.EventStore;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
