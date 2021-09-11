@@ -14,7 +14,7 @@ public class InMemoryEventStore<T extends Event> implements EventStore<T> {
 	public List<T> get(UUID id) {
 		var result = store.get(id);
 		if (result == null) {
-			throw new NotFoundException();
+			throw new NotFoundException(id);
 		}
 		return result;
 	}

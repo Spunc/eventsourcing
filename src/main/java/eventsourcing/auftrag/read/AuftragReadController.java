@@ -18,6 +18,6 @@ public class AuftragReadController {
 
 	@GetMapping(PATH + "/{id}")
 	public AuftragCurrentState get(@PathVariable UUID id) {
-		return auftragCurrentStateProjection.get(id).orElseThrow(NotFoundException::new);
+		return auftragCurrentStateProjection.get(id).orElseThrow(() -> new NotFoundException(id));
 	}
 }

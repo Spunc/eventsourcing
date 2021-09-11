@@ -36,10 +36,10 @@ public class Auftrag {
 
 	public void erstellen(ErstelleAuftragCommand command) {
 		if (command.getBeladestelle().getLadezeit().isBefore(ZonedDateTime.now())) {
-			throw new IllegalArgumentException("Ladezeit der Beladestelle ist in der Vergangenheit");
+			throw new BadRequestException("Ladezeit der Beladestelle ist in der Vergangenheit");
 		}
 		if (command.getEntladestelle().getLadezeit().isBefore(command.getBeladestelle().getLadezeit())) {
-			throw new IllegalArgumentException("Ladezeit der Entladestelle ist früher als Ladezeit der Beladestelle");
+			throw new BadRequestException("Ladezeit der Entladestelle ist früher als Ladezeit der Beladestelle");
 		}
 
 		AuftragErstelltEvent erstelltEvent = new AuftragErstelltEvent(command.getBeladestelle(), command.getEntladestelle());
@@ -48,10 +48,10 @@ public class Auftrag {
 
 	public void aendern(AendereAuftragCommand command) {
 		if (command.getBeladestelle().getLadezeit().isBefore(ZonedDateTime.now())) {
-			throw new IllegalArgumentException("Ladezeit der Beladestelle ist in der Vergangenheit");
+			throw new BadRequestException("Ladezeit der Beladestelle ist in der Vergangenheit");
 		}
 		if (command.getEntladestelle().getLadezeit().isBefore(command.getBeladestelle().getLadezeit())) {
-			throw new IllegalArgumentException("Ladezeit der Entladestelle ist früher als Ladezeit der Beladestelle");
+			throw new BadRequestException("Ladezeit der Entladestelle ist früher als Ladezeit der Beladestelle");
 		}
 
 		AuftragGeaendertEvent geaendertEvent = new AuftragGeaendertEvent(command.getBeladestelle(), command.getEntladestelle());

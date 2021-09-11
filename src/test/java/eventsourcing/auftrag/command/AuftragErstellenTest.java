@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import eventsourcing.auftrag.domain.Auftrag;
+import eventsourcing.auftrag.domain.BadRequestException;
 import eventsourcing.auftrag.domain.Ladestelle;
 import eventsourcing.auftrag.event.AuftragErstelltEvent;
 import java.time.ZonedDateTime;
@@ -44,7 +45,7 @@ public class AuftragErstellenTest {
 		ErstelleAuftragCommand command = createCommand(beladezeit, beladezeit.plusDays(1));
 
 		// Ausführen und Verifizieren
-		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> auftrag.erstellen(command));
+		assertThatExceptionOfType(BadRequestException.class).isThrownBy(() -> auftrag.erstellen(command));
 	}
 
 	@Test
@@ -54,7 +55,7 @@ public class AuftragErstellenTest {
 		ErstelleAuftragCommand command = createCommand(beladezeit, beladezeit.minusDays(1));
 
 		// Ausführen und Verifizieren
-		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> auftrag.erstellen(command));
+		assertThatExceptionOfType(BadRequestException.class).isThrownBy(() -> auftrag.erstellen(command));
 	}
 
 

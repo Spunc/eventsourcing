@@ -1,0 +1,89 @@
+openapi: 3.0.1
+servers:
+  - url: /
+info:
+  title: Example Project Event Sourcing
+  version: 1.0.1-SNAPSHOT
+  description: Share Your Experience @LHIND, 2021-09-24
+
+paths:
+
+  /auftrag:
+    post:
+      summary: Erstelle Auftrag
+      description: Einen neuen Auftrag erstellen
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErstelleAuftragCommand'
+      responses:
+        201:
+          description: Created
+
+  /auftrag/{id}:
+    get:
+      summary: Erhalte Auftrag
+      description: Erhalte die Read-Repräsentanz eines Auftags
+      parameters:
+        - name: id
+          in: path
+          required: true
+      responses:
+        200:
+          description: Read-Modell des Auftrags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuftragCurrentState'
+
+components:
+
+  schemas:
+
+    ErstelleAuftragCommand:
+      type: object
+      properties:
+        beladestelle:
+          $ref: '#/components/schemas/Ladestelle'
+        entladestelle:
+          $ref: '#/components/schemas/Ladestelle'
+
+    Ladestelle:
+      type: object
+      properties:
+        plz:
+          type: string
+          example: 27283
+        ladezeit:
+          type: string
+          format: date-time
+
+    Position:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 2f5e50da-9dd3-48cf-8049-972497432aed
+        bezeichnung:
+          type: string
+          example: Haushaltswaren
+        warenwert:
+          type: string
+          pattern: '^\d+\.\d{2}$'
+
+    AuftragCurrentState:
+      type: object
+      properties:
+        beladestelle:
+          $ref: '#/components/schemas/Ladestelle'
+        entladestelle:
+          $ref: '#/components/schemas/Ladestelle'
+        positionen:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+
+
