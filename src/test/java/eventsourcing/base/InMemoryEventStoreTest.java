@@ -40,6 +40,6 @@ class InMemoryEventStoreTest {
 
 	@Test
 	void nicht_vorhanden() {
-		assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> eventStore.get(UUID.randomUUID()));
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> eventStore.get(UUID.randomUUID()));
 	}
 }

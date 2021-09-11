@@ -35,22 +35,6 @@ public class LoeschePositionTest {
 	}
 
 	@Test
-	void kann_nicht_gleiche_Position_zweimal_loeschen() {
-		// Ein Auftrag mit einer Position
-		UUID positionId = UUID.randomUUID();
-		Auftrag auftrag = new AuftragBuilder()
-				.mitPosition(new PositionBuilder().mitId(positionId).build())
-				.build();
-
-		// Command erstellen
-		LoeschePositionCommand command = new LoeschePositionCommand(positionId);
-
-		// Ausführen und Verifizieren
-		auftrag.loeschePosition(command);
-		assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> auftrag.loeschePosition(command));
-	}
-
-	@Test
 	void versicherung_wird_storniert_wenn_gesamter_Warenwert_unter_5000_liegt() {
 		// Ein Auftrag mit einer Position und Versicherung
 		UUID positionId = UUID.randomUUID();

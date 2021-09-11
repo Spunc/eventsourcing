@@ -15,8 +15,9 @@ import eventsourcing.auftrag.event.VersicherungsBestaetigt;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
 
@@ -27,7 +28,7 @@ public class Auftrag {
 
 	private Ladestelle entladestelle;
 
-	private List<Position> positionen = new ArrayList<>();
+	private final Map<UUID, Position> positionen = new HashMap<>();
 
 	private Versicherungsstatus versicherungsstatus = Versicherungsstatus.KEINE;
 
@@ -68,16 +69,10 @@ public class Auftrag {
 	}
 
 	public void loeschePosition(LoeschePositionCommand command) {
-		boolean vorhanden = positionen.stream()
-				.map(Position::getId)
-				.anyMatch(p -> command.getId().equals(p));
-		if (!vorhanden) {
-			throw new NoSuchElementException("Position nicht gefunden");
+		if (positionen.containsKey(command.getId())) {
+			applyAndSave(new PositionGeloeschtEvent(command.getId()));
+			versicherungsCheck();
 		}
-
-		applyAndSave(new PositionGeloeschtEvent(command.getId()));
-
-		versicherungsCheck();
 	}
 
 
@@ -94,12 +89,10 @@ public class Auftrag {
 	}
 
 	public void apply(PositionHinzugefuegtEvent event) {
-		positionen.add(event.getPosition());
+		positionen.put(event.getPosition().getId(), event.getPosition());
 	}
 
-	public void apply(PositionGeloeschtEvent event) {
-		positionen.removeIf(p -> event.getId().equals(p.getId()));
-	}
+	public void apply(PositionGeloeschtEvent event) { positionen.remove(event.getId()); }
 
 	public void apply(VersicherungAngefordertEvent event) {
 		versicherungsstatus = Versicherungsstatus.ANGEFORDERT;
@@ -115,7 +108,7 @@ public class Auftrag {
 	// Helfer
 
 	private BigDecimal getGesamtWarenwert() {
-		return positionen.stream().map(Position::getWarenwert).reduce(BigDecimal.ZERO, BigDecimal::add);
+		return positionen.values().stream().map(Position::getWarenwert).reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 
 	private void versicherungsCheck() {
