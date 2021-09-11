@@ -3,6 +3,7 @@ package eventsourcing.base;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,12 +21,8 @@ public class InMemoryProjectionStore<T> implements ProjectionStore<T> {
 	}
 
 	@Override
-	public T get(UUID id) {
-		T result = map.get(id);
-		if (result == null) {
-			throw new NoSuchElementException();
-		}
-		return result;
+	public Optional<T> get(UUID id) {
+		return Optional.ofNullable(map.get(id));
 	}
 
 	@Override
