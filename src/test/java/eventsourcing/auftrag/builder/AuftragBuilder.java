@@ -15,10 +15,6 @@ import java.util.List;
 
 public class AuftragBuilder {
 
-	private Ladestelle beladestelle = new Ladestelle("12345", ZonedDateTime.now().plusDays(2));
-
-	private Ladestelle entladestelle = new Ladestelle("98765", beladestelle.getLadezeit().plusDays(1));
-
 	private List<Position> positionen = new ArrayList<>();
 
 	private Versicherungsstatus versicherungsstatus = Versicherungsstatus.KEINE;
@@ -38,7 +34,7 @@ public class AuftragBuilder {
 
 	public Auftrag build() {
 		Auftrag auftrag = new Auftrag();
-		auftrag.apply(new AuftragErstelltEvent(beladestelle, entladestelle));
+		auftrag.apply(new AuftragErstelltEventBuilder().build());
 		for(Position position : positionen) {
 			auftrag.apply(new PositionHinzugefuegtEvent(position));
 		}

@@ -22,6 +22,24 @@ paths:
         201:
           description: Created
 
+  /auftrag/{id}/position:
+    post:
+      summary: Position hinzufügen
+      description: Füge dem Auftrag eine Position hinzu
+      parameters:
+        - name: id
+          in: path
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FuegePositionHinzuCommand'
+      responses:
+        201:
+          description: Created
+
   /auftrag/{id}:
     get:
       summary: Erhalte Auftrag
@@ -49,6 +67,16 @@ components:
           $ref: '#/components/schemas/Ladestelle'
         entladestelle:
           $ref: '#/components/schemas/Ladestelle'
+
+    FuegePositionHinzuCommand:
+      type: object
+      properties:
+        bezeichnung:
+          type: string
+          example: Haushaltswaren
+        warenwert:
+          type: string
+          pattern: '^\d+\.\d{2}$'
 
     Ladestelle:
       type: object
