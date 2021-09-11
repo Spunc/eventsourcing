@@ -24,7 +24,7 @@ public class PublishingEventStore<T extends Event> implements EventStore<T> {
 	public void append(UUID id, List<T> events) {
 		eventStore.append(id, events);
 		for (Event event : events) {
-			jmsTemplate.convertAndSend(destination, new EventEnvelop(id, event));
+			jmsTemplate.convertAndSend(destination, new EventEnvelop<>(id, event));
 		}
 
 	}
