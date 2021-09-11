@@ -7,6 +7,8 @@ import eventsourcing.auftrag.domain.Auftrag;
 import eventsourcing.auftrag.event.AuftragEvent;
 import eventsourcing.base.EventStore;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,19 +27,27 @@ public class AuftragCommandHandler {
 		return id;
 	}
 
-	public void aendern(AendereAuftragCommand command, UUID id) {
-		Auftrag auftrag = new Auftrag();
-		auftrag.apply(auftragEventStore.get(id));
-		auftrag.aendern(command);
+	public void aendern(UUID id, AendereAuftragCommand command) {
+		handleUpdate(id, auftrag -> auftrag.aendern(command));
+	}
 
+	public UUID positionHinzufuegen(UUID id, FuegePositionHinzuCommand command) {
+		Auftrag auftrag = getAufrag(id);
+		UUID positionId = auftrag.fuegePositionHinzu(command);
+		auftragEventStore.append(id, auftrag.getUncommittedEvents());
+		return positionId;
+	}
+
+	private void handleUpdate(UUID id, Consumer<Auftrag> auftragConsumer) {
+		Auftrag auftrag = getAufrag(id);
+		auftragConsumer.accept(auftrag);
 		auftragEventStore.append(id, auftrag.getUncommittedEvents());
 	}
 
-	public void positionHinzufuegen(FuegePositionHinzuCommand command, UUID id) {
+	private Auftrag getAufrag(UUID id) {
 		Auftrag auftrag = new Auftrag();
 		auftrag.apply(auftragEventStore.get(id));
-		auftrag.fuegePositionHinzu(command);
-
-		auftragEventStore.append(id, auftrag.getUncommittedEvents());
+		return auftrag;
 	}
+
 }
