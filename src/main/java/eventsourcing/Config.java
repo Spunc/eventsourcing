@@ -23,6 +23,8 @@ public class Config {
 
 	public static final String AUFTRAG_TOPIC = "Auftrag";
 
+	public static final String MESSAGE_CONVERTER_TYPE_ID = "__type";
+
 	@Bean
 	Jackson2ObjectMapperBuilder jsonConfig() {
 		return new Jackson2ObjectMapperBuilder()
@@ -36,7 +38,7 @@ public class Config {
 	MessageConverter jacksonMessageConverter(ObjectMapper objectMapper) {
 		MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
 		converter.setObjectMapper(objectMapper);
-		converter.setTypeIdPropertyName("__type");
+		converter.setTypeIdPropertyName(MESSAGE_CONVERTER_TYPE_ID);
 		return converter;
 	}
 
