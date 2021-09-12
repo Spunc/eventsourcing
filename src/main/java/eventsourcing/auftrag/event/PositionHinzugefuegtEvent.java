@@ -15,12 +15,8 @@ public class PositionHinzugefuegtEvent implements AuftragEvent, AuftragReadEvent
 	private Position position;
 
 	@Override
-	public void accept(Auftrag auftrag) {
-		auftrag.apply(this);
-	}
+	public void accept(Auftrag auftrag) { auftrag.apply(this); }
 
 	@Override
-	public void accept(AuftragCurrentState auftragCurrentState) {
-
-	}
+	public void accept(AuftragCurrentState auftragCurrentState) { auftragCurrentState.apply(this); }
 }

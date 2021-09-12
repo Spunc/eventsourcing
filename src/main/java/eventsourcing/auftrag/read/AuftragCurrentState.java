@@ -7,8 +7,8 @@ import eventsourcing.auftrag.event.PositionHinzugefuegtEvent;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -34,7 +34,7 @@ public class AuftragCurrentState {
 
 	public void apply(PositionHinzugefuegtEvent event) {
 		var position = event.getPosition();
-		String geldwert = NumberFormat.getCurrencyInstance().format(position.getWarenwert());
+		String geldwert = NumberFormat.getCurrencyInstance(Locale.GERMANY).format(position.getWarenwert());
 		positionen.add(new Position(position.getId(), position.getBezeichnung(), geldwert));
 	}
 

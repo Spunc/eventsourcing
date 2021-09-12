@@ -1,6 +1,7 @@
 package eventsourcing.auftrag.read;
 
 import eventsourcing.Config;
+import eventsourcing.auftrag.event.AuftragEvent;
 import eventsourcing.auftrag.event.AuftragReadEvent;
 import eventsourcing.base.EventEnvelop;
 import eventsourcing.base.ProjectionStore;
@@ -18,10 +19,14 @@ public class AuftragCurrentStateProjection {
 	private final ProjectionStore<AuftragCurrentState> projectionStore;
 
 	@JmsListener(destination = Config.AUFTRAG_TOPIC)
-	public void onAuftragEvent(EventEnvelop<AuftragReadEvent> event) {
-		AuftragCurrentState auftragCurrentState = getOrCreate(event.getId());
-		event.getEvent().accept(auftragCurrentState);
-		projectionStore.upsert(event.getId(), auftragCurrentState);
+	public void onAuftragEvent(EventEnvelop<AuftragEvent> envelop) {
+		var event = envelop.getEvent();
+		// Filtere Events nach AuftragReadEvent Interface
+		if (event instanceof AuftragReadEvent ) {
+			AuftragCurrentState auftragCurrentState = getOrCreate(envelop.getId());
+			((AuftragReadEvent) event).accept(auftragCurrentState);
+			projectionStore.upsert(envelop.getId(), auftragCurrentState);
+		}
 	}
 
 	private AuftragCurrentState getOrCreate(UUID id) {
