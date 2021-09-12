@@ -3,6 +3,7 @@ package eventsourcing.auftrag;
 import eventsourcing.auftrag.command.AendereAuftragCommand;
 import eventsourcing.auftrag.command.ErstelleAuftragCommand;
 import eventsourcing.auftrag.command.FuegePositionHinzuCommand;
+import eventsourcing.auftrag.command.LoeschePositionCommand;
 import eventsourcing.auftrag.domain.Auftrag;
 import eventsourcing.auftrag.event.AuftragEvent;
 import eventsourcing.base.EventStore;
@@ -35,6 +36,10 @@ public class AuftragCommandHandler {
 		UUID positionId = auftrag.fuegePositionHinzu(command);
 		auftragEventStore.append(id, auftrag.getUncommittedEvents());
 		return positionId;
+	}
+
+	public void positionLoeschen(UUID id, LoeschePositionCommand command){
+		handleUpdate(id, auftrag -> auftrag.loeschePosition(command));
 	}
 
 	private void handleUpdate(UUID id, Consumer<Auftrag> auftragConsumer) {

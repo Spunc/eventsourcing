@@ -11,25 +11,67 @@ paths:
   /auftrag:
     post:
       summary: Erstelle Auftrag
-      description: Einen neuen Auftrag erstellen
+      description: Einen neuen Auftrag erstellen.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ErstelleAuftragCommand'
+              $ref: '#/components/schemas/AuftragData'
       responses:
         201:
           description: Created
 
-  /auftrag/{id}/position:
-    post:
-      summary: Position hinzufügen
-      description: Füge dem Auftrag eine Position hinzu
+  /auftrag/{id}:
+    get:
+      summary: Erhalte Auftrag
+      description: Erhalte die Read-Repräsentanz eines Auftags.
       parameters:
         - name: id
           in: path
           required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      responses:
+        200:
+          description: Read-Modell des Auftrags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuftragCurrentState'
+        404:
+          $ref: '#/components/responses/404'
+    put:
+      summary: Einen Auftrag aktualisieren
+      description: Aktualisiere einen bestehenden Auftrag
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuftragData'
+      responses:
+        204:
+          description: No Conent
+        404:
+          $ref: '#/components/responses/404'
+
+  /auftrag/{id}/position:
+    post:
+      summary: Position hinzufügen
+      description: Füge dem Auftrag eine Position hinzu.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
       requestBody:
         required: true
         content:
@@ -40,27 +82,39 @@ paths:
         201:
           description: Created
 
-  /auftrag/{id}:
-    get:
-      summary: Erhalte Auftrag
-      description: Erhalte die Read-Repräsentanz eines Auftags
+  /auftrag/{id}/position/{positionId}:
+    delete:
+      summary: Position löschen
+      description: Lösche eine Position in einem Auftrag.
       parameters:
         - name: id
           in: path
           required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+        - name: positionId
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
       responses:
-        200:
-          description: Read-Modell des Auftrags
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuftragCurrentState'
+        204:
+          description: No Content
+        404:
+          $ref: '#/components/responses/404'
+
 
 components:
 
   schemas:
 
-    ErstelleAuftragCommand:
+    UUID:
+      description: Ein eindeutiger Identifikator
+      type: string
+      format: uuid
+      example: 0fc46152-83ca-489c-a2a3-6dc1664517db
+
+    AuftragData:
       type: object
       properties:
         beladestelle:
@@ -77,6 +131,7 @@ components:
         warenwert:
           type: string
           pattern: '^\d+\.\d{2}$'
+          example: '1000.50'
 
     Ladestelle:
       type: object
@@ -92,15 +147,14 @@ components:
       type: object
       properties:
         id:
-          type: string
-          format: uuid
-          example: 2f5e50da-9dd3-48cf-8049-972497432aed
+          $ref: '#/components/schemas/UUID'
         bezeichnung:
           type: string
           example: Haushaltswaren
         warenwert:
           type: string
           pattern: '^\d+\.\d{2}$'
+          example: '1000.50'
 
     AuftragCurrentState:
       type: object
@@ -114,4 +168,30 @@ components:
           items:
             $ref: '#/components/schemas/Position'
 
+    Error:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: number
+          example: 404
+        error:
+          type: string
+          example: Not Found
+        message:
+          type: string
+          example: 'Resource id=0fc46152-83ca-489c-a2a3-6dc1664517db nicht gefunden'
+        path:
+          type: string
+          example: '/auftrag/0fc46152-83ca-489c-a2a3-6dc1664517db'
 
+  responses:
+
+    404:
+      description: Die Ressource konnte nicht gefunden werden.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

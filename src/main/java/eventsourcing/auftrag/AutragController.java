@@ -3,10 +3,12 @@ package eventsourcing.auftrag;
 import eventsourcing.auftrag.command.AendereAuftragCommand;
 import eventsourcing.auftrag.command.ErstelleAuftragCommand;
 import eventsourcing.auftrag.command.FuegePositionHinzuCommand;
+import eventsourcing.auftrag.command.LoeschePositionCommand;
 import java.net.URI;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -37,6 +39,13 @@ public class AutragController {
 	public ResponseEntity<Void> fuegePositionHinzu(@PathVariable UUID id, @RequestBody FuegePositionHinzuCommand command) {
 		var positionId = auftragCommandHandler.positionHinzufuegen(id, command);
 		return ResponseEntity.created(URI.create(PATH + '/' + id + "/position/" + positionId)).build();
+	}
+
+	@DeleteMapping(PATH + "/{id}/position/{positionId}")
+	public ResponseEntity<Void> fuegePositionHinzu(@PathVariable UUID id, @PathVariable UUID positionId) {
+		var loeschePositionCommand = new LoeschePositionCommand(positionId);
+		auftragCommandHandler.positionLoeschen(id, loeschePositionCommand);
+		return ResponseEntity.noContent().build();
 	}
 
 }

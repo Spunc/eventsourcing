@@ -3,7 +3,9 @@ package eventsourcing.auftrag.read;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import eventsourcing.auftrag.builder.AuftragErstelltEventBuilder;
+import eventsourcing.auftrag.builder.PositionBuilder;
 import eventsourcing.auftrag.event.AuftragErstelltEvent;
+import eventsourcing.auftrag.event.PositionGeloeschtEvent;
 import eventsourcing.auftrag.event.PositionHinzugefuegtEvent;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -43,7 +45,10 @@ class AuftragCurrentStateTest {
 		UUID positionId = UUID.randomUUID();
 		String bezeichnung = "Gemischtwaren";
 		BigDecimal warenwert = BigDecimal.valueOf(100_30, 2);
-		eventsourcing.auftrag.domain.Position position = new eventsourcing.auftrag.domain.Position(positionId, bezeichnung, warenwert);
+		eventsourcing.auftrag.domain.Position position = new PositionBuilder()
+				.mitId(positionId)
+				.mitBezeichnung(bezeichnung)
+				.mitWarenwert(warenwert).build();
 
 		PositionHinzugefuegtEvent event = new PositionHinzugefuegtEvent(position);
 
@@ -56,6 +61,22 @@ class AuftragCurrentStateTest {
 			assertThat(pos.getBezeichnung()).isEqualTo(bezeichnung);
 			assertThat(pos.getWarenwert()).isEqualTo("100,30\u00A0€");
 		});
+	}
+
+	@Test
+	void positionGeloeschtEvent() {
+		UUID positionId = UUID.randomUUID();
+
+		eventsourcing.auftrag.domain.Position position = new PositionBuilder().mitId(positionId).build();
+		PositionHinzugefuegtEvent hinzugefuegtEvent = new PositionHinzugefuegtEvent(position);
+
+		AuftragCurrentState currentState = new AuftragCurrentState();
+		currentState.apply(hinzugefuegtEvent);
+
+		PositionGeloeschtEvent geloeschtEvent = new PositionGeloeschtEvent(positionId);
+		currentState.apply(geloeschtEvent);
+
+		assertThat(currentState.getPositionen()).hasSize(0);
 	}
 
 }
