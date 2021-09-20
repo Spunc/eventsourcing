@@ -10,7 +10,7 @@ import eventsourcing.auftrag.event.AuftragErstelltEvent;
 import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
-public class AuftragErstellenTest {
+public class ErstelleAuftragTest {
 
 	private static final String BELADESTELLE_PLZ = "27283";
 	private static final String ENTLADESTELLE_PLZ = "86150";

@@ -32,7 +32,7 @@ public class AuftragCommandHandler {
 	}
 
 	public UUID positionHinzufuegen(UUID id, FuegePositionHinzuCommand command) {
-		Auftrag auftrag = getAufrag(id);
+		Auftrag auftrag = getAuftrag(id);
 		UUID positionId = auftrag.fuegePositionHinzu(command);
 		auftragEventStore.append(id, auftrag.getUncommittedEvents());
 		return positionId;
@@ -43,12 +43,12 @@ public class AuftragCommandHandler {
 	}
 
 	private void handleUpdate(UUID id, Consumer<Auftrag> auftragConsumer) {
-		Auftrag auftrag = getAufrag(id);
+		Auftrag auftrag = getAuftrag(id);
 		auftragConsumer.accept(auftrag);
 		auftragEventStore.append(id, auftrag.getUncommittedEvents());
 	}
 
-	private Auftrag getAufrag(UUID id) {
+	private Auftrag getAuftrag(UUID id) {
 		Auftrag auftrag = new Auftrag();
 		auftrag.apply(auftragEventStore.get(id));
 		return auftrag;
